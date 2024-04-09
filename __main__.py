@@ -8,16 +8,15 @@ DOWNLOAD_MNIST = False
 MODEL_TYPE = "FC"   #MODEL_TYPE can be either FC or CNN
 
 
-"""Hyperparameter"""
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+"""Hyperparameter
+Note that hyperparameters of model are defined in the corresponding model file,
+e.g. in FC.py or CNN.py
+"""
 BATCH_SIZE = 100
-LEARNING_RATE = 0.05
-MOMENTUM = 0.5
-EPOCHS = 5
 
 
 """Load datasets"""
-data_path = "~/MNIST/data"
+data_path = "~/Project/MNIST/data"
 train_set = torchvision.datasets.MNIST(
         root=data_path,
         train=True,
@@ -61,11 +60,7 @@ test_loader = torch.utils.data.DataLoader(
 )
 
 
-"""Get model
-
-Note that configuration/hyperparameter is defined in the corresponding model file
-e.g. in FC.py or CNN.py
-"""
+"""Get model"""
 """
 if MODEL_TYPE == "FC":
     import FC
@@ -74,49 +69,7 @@ if MODEL_TYPE == "FC":
 #TODO: Implement CNN
 """
 import FC
-model = FC.Model(FC.Config()).to(DEVICE)
+model = FC.Model(FC.Config())
 
-
-"""Define loss function and optimizer"""
-loss_func = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
-
-
-"""Train function"""
-def train():
-    total_step = len(train_loader)
-    for epoch in range(EPOCHS):
-        for batch_idx, (images, labels) in enumerate(train_loader):
-            images = images.reshape(-1, 28*28).to(DEVICE)  #-1 means automatically deduced
-            labels = labels.to(DEVICE)
-
-            outputs = model(images)
-            loss = loss_func(outputs, labels)
-            
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-            if (batch_idx+1) % 100 == 0:
-                print("Epoch: [{}/{}], Step [{}/{}], Loss: {:.4f}"
-                        .format(epoch, EPOCHS, batch_idx+1, total_step, loss.item()))
-    
-
-"""Test function"""
-def test():
-    correct=0
-    with torch.no_grad():
-        for images, labels in test_loader:
-            images = images.reshape(-1, 28*28).to(DEVICE)   #-1 means automatically deduced
-            labels = labels.to(DEVICE)
-            
-            outputs = model(images)
-            _,  predicted = torch.max(outputs.data, 1)
-            correct += (predicted == labels).sum().item()
-
-    print("Test accuracy: {}/{} ({:.0f})%"
-            .format(correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset)))
-
-
-train()
-test()
+model.test(test_loader)
+model.train(train_loader, test_loader)
