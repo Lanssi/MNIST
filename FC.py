@@ -5,19 +5,14 @@ import torch.nn.functional as F
 
 """Configuration"""
 class Config():
-    def __init__(self):
+    def __init__(self, device):
         # Model hyperparameter
         self.input_size = 28*28
         self.hidden_size = 100
         self.output_size = 10
 
         # Training hyperparameter
-        self.DEVICE = 'cuda'
-        if self.DEVICE == 'cpu':
-            pass
-        else:
-            self.DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+        self.DEVICE = device
         self.EPOCHS = 10
         self.LEARNING_RATE = 0.05
         self.MOMENTUM = 0.5
@@ -36,7 +31,7 @@ class Model(nn.Module):
         x = self.fc1(x)
         x = self.relu(x)
         x = self.fc2(x)
-        return F.log_softmax(x, -1)
+        return x
 
     def train(self, train_loader, test_loader):
         # Put model to specified device
@@ -60,7 +55,7 @@ class Model(nn.Module):
                 optimizer.step()
 
                 if (batch_idx+1) % 100 == 0:
-                    print('Train: epoch {} [{}/{} ({:.0f}%)], Loss {:.6f}'.format(
+                    print('Train: epoch {} [{}/{} ({:3.0f}%)], Loss {:.6f}'.format(
                         epoch+1, (batch_idx+1)*len(images), len(train_loader.dataset), 
                         100.*(batch_idx+1)*len(images)/len(train_loader.dataset), loss.item()))
 

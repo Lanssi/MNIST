@@ -5,8 +5,12 @@ import matplotlib.pyplot as plt
 
 """Configuration"""
 DOWNLOAD_MNIST = False
-MODEL_TYPE = "FC"   #MODEL_TYPE can be either FC or CNN
-
+MODEL_TYPE = "CNN"   #MODEL_TYPE can be either FC or CNN
+DEVICE = 'cuda'
+if DEVICE == 'cpu':
+    pass
+else:
+    DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 """Hyperparameter
 Note that hyperparameters of model are defined in the corresponding model file,
@@ -61,15 +65,12 @@ test_loader = torch.utils.data.DataLoader(
 
 
 """Get model"""
-"""
-if MODEL_TYPE == "FC":
+if MODEL_TYPE == 'FC':
     import FC
-    config = FC.Config()
-    model = FC.Model()
-#TODO: Implement CNN
-"""
-import FC
-model = FC.Model(FC.Config())
+    model = FC.Model(FC.Config(DEVICE))
+if MODEL_TYPE == 'CNN':
+    import CNN
+    model = CNN.Model(CNN.Config(DEVICE))
 
 model.test(test_loader)
 model.train(train_loader, test_loader)
