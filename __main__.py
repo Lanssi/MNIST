@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 """Configuration"""
 DOWNLOAD_MNIST = False
-MODEL_TYPE = "CNN2"   #MODEL_TYPE can be either FC or CNN
+MODEL_TYPE = "CNN"   #MODEL_TYPE can be either FC or CNN
 DEVICE = 'cuda'
 if DEVICE == 'cpu':
     pass

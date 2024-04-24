@@ -26,17 +26,17 @@ class Model(nn.Module):
         #Original shape: (1, 1, 28, 28) for (batch, channel, height, width)
         #Maxpool before ReLU so that we can accelerate the computation
         self.conv1 = nn.Sequential(
-                nn.Conv2d(in_channels=1, out_channels=10, kernel_size=3, stride=2, padding=1), #(24, 24)
-                #nn.MaxPool2d(kernel_size = 2), #(12, 12)
+                nn.Conv2d(in_channels=1, out_channels=10, kernel_size=5), #(24, 24)
+                nn.MaxPool2d(kernel_size = 2), #(12, 12)
                 nn.ReLU() #(12, 12)
         )
         self.conv2 = nn.Sequential(
-                nn.Conv2d(in_channels=10, out_channels=20, kernel_size=5, stride=3, padding=2), #(8, 8)
-                #nn.MaxPool2d(kernel_size = 2),
-                nn.ReLU() #(8, 8)
+                nn.Conv2d(in_channels=10, out_channels=20, kernel_size=5), #(8, 8)
+                nn.MaxPool2d(kernel_size = 2), #(4, 4)
+                nn.ReLU() #(4, 4)
         )
-        self.fc1 = nn.Linear(in_features=20*5*5, out_features=250, bias=True)
-        self.fc2 = nn.Linear(in_features=250, out_features=10, bias=True) 
+        self.fc1 = nn.Linear(in_features=20*4*4, out_features=160, bias=True)
+        self.fc2 = nn.Linear(in_features=160, out_features=10, bias=True) 
 
     def forward(self, x):
         #Convolution
@@ -44,10 +44,8 @@ class Model(nn.Module):
         x = self.conv2(x)
         #Fully connected
         x = x.view(x.size(0), -1)
-        x = self.fc1(x)
-        x = F.relu(x)
+        x = F.relu(self.fc1(x))
         x = self.fc2(x)
-        print(x.shape)
         
         return x
     
