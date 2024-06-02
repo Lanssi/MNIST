@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 """Configuration"""
 DOWNLOAD_MNIST = False
-MODEL_TYPE = "CNN"   #MODEL_TYPE can be either FC or CNN
+MODEL_TYPE = "CNN2"   #MODEL_TYPE can be either FC or CNN
 DEVICE = 'cuda'
 if DEVICE == 'cpu':
     pass
@@ -76,5 +76,7 @@ if MODEL_TYPE == 'CNN2':
     import CNN2
     model = CNN2.Model(CNN2.Config(DEVICE))
 
+model_param_size = sum(p.numel() for p in model.parameters())
+print(f"model_param_size: {model_param_size}")
 model.test(test_loader)
 model.train(train_loader, test_loader)

@@ -11,7 +11,7 @@ class Config():
 
         #Training hyperparameter
         self.DEVICE = device
-        self.EPOCHS = 10
+        self.EPOCHS = 20
         self.LEARNING_RATE = 0.001
     
 """ Model definition
@@ -25,27 +25,18 @@ class Model(nn.Module):
         #Note that you can define your own model here, be aware of the shape however
         #Original shape: (1, 1, 28, 28) for (batch, channel, height, width)
         #Maxpool before ReLU so that we can accelerate the computation
-        out_chan=3
-        self.conv1 = nn.Conv2d(1, out_chan, 3, 2, 1) #(14, 14)
-        self.conv2 = nn.Conv2d(1, out_chan, 5, 3, 2) #(10, 10)
-        self.conv3 = nn.Conv2d(1, out_chan, 7, 4, 3) #(7, 7)
-        self.fc1 = nn.Linear(out_chan*(14*14+10*10+7*7), 500)
-        self.fc2 = nn.Linear(500, 100)
-        self.head = nn.Linear(100, 10)
-        
+        cs = 30
+        self.model = nn.Sequential(
+                nn.Conv2d(1, cs, 9, groups=1), #(20, 20)
+                nn.ReLU(),
+                nn.Conv2d(cs, cs, 20, groups=cs), #(1, 1)
+                nn.ReLU(),
+                nn.Flatten(),
+                nn.Linear(cs, 10, True),
+        )
 
     def forward(self, x):
-        #Convolution
-        path1 = F.relu(self.conv1(x)).flatten(1)
-        path2 = F.relu(self.conv2(x)).flatten(1)
-        path3 = F.relu(self.conv3(x)).flatten(1)
-        output = torch.cat((path1, path2, path3), 1)
-        #Fully connected
-        output = F.relu(self.fc1(output)) 
-        output = F.relu(self.fc2(output)) 
-        output = self.head(output)
-        
-        return output
+        return self.model(x)
     
     def train(self, train_loader, test_loader):
         #Put model to specified device
